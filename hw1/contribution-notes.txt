@@ -1,0 +1,11 @@
+sborland
+wrote server.py using Flask in collaberation with jscalett
+
+jscalett
+wrote server.py using Flask in collaberation with sborland
+
+vispatel
+wrote the Dockerfile
+
+tmathias
+created docker image/troubleshooting/figuring out docker
