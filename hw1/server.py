@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template
+from Flask import Flask, request, redirect, render_template
 
 app = Flask(__name__)
 
@@ -18,5 +18,5 @@ def echo():
         return message  
 
 if __name__ == "__main__":
-    app.run(host='localhost', port=8080)
     app.debug = True
+    app.run(port=8080)

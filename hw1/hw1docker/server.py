@@ -18,5 +18,5 @@ def echo():
         return message  
 
 if __name__ == "__main__":
-    app.run(host='localhost', port=8080)
     app.debug = True
+    app.run(port=8080)
