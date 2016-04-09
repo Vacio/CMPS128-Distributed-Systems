@@ -9,8 +9,8 @@ RUN apt-get update && apt-get install -y \
 
 
 # Copy the python app and set the directory.
-COPY . /hw1docker
-WORKDIR /hw1docker/hw1docker
+COPY . /hw1-JSTV
+WORKDIR /hw1-JSTV/hw1-JSTV
 
 # Install Flask
 RUN pip install -r flaskcheck.txt
