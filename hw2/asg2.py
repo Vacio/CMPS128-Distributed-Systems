@@ -1,14 +1,23 @@
-from flask import Flask
+from flask import Flask, request
 
 app = Flask(__name__)
 app.debug = True
 
-@app.route("/kvs/<string:key_name>", methods=['GET', 'PUT'])
+@app.route("/kvs/<string:key_name>", methods=['GET', 'PUT', 'DELETE'])
 
-def root():
+def root(key_name):
 	if (request.method == 'GET'):
-def show_keyname(key_name):
-	return "Key: %s" % key_name
+		return "Get value of %s" % key_name
+
+	if (request.method == 'PUT'):
+		v = request.form['value']
+		return "Stored %s at %s" % (v, key_name)
+
+	if (request.method == 'DELETE'):
+		return "Delete value and key: %s" % key_name
+		
+	else:
+		return "Invalid request."
 
 # Value GET (Key k) Get key-value pair using key
 # PUT(Key k, Value v) Store key-value pair
