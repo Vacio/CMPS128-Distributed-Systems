@@ -1,7 +1,8 @@
-from flask import Flask, request
+from flask import Flask, request, make_response, jsonify
 
 app = Flask(__name__)
 app.debug = True
+DT = {}
 
 @app.route("/kvs/<string:key_name>", methods=['GET', 'PUT', 'DELETE'])
 
@@ -11,19 +12,25 @@ def root(key_name):
 
 	if (request.method == 'PUT'):
 		v = request.form['value']
-		return "Stored %s at %s" % (v, key_name)
+		return putValue(key_name,v)
 
 	if (request.method == 'DELETE'):
 		return "Delete value and key: %s" % key_name
-		
+
 	else:
 		return "Invalid request."
 
-# Value GET (Key k) Get key-value pair using key
-# PUT(Key k, Value v) Store key-value pair
-# DEL(Key k) Remove key-value pair using key
+# Working
+def putValue(key,value):
+	if (key in DT):
+		j = jsonify(msg='success',replaced=1)
+		resp = make_response(j,200, {'Content-Type' : 'application/json'})
+	else:
+		j = jsonify(msg='success',replaced=0)
+		resp = make_response(j,201,{'Content-Type' : 'application/json'})
 
-# Responses for the GET, PUT, DEL methods
+	DT[key]=value
+	return resp
 
 if __name__ == '__main__':
 	app.run(port=8080)
