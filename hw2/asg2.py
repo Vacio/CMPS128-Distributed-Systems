@@ -15,8 +15,12 @@ def root(key_name):
 		return putValue(key_name,v)
 
 	if (request.method == 'DELETE'):
+<<<<<<< HEAD
 		#return "Delete value and key: %s" % key_name
 		return delValue(key_name)
+=======
+		return "Delete value and key: %s" % key_name
+>>>>>>> origin/master
 
 	else:
 		return "Invalid request."
@@ -42,6 +46,7 @@ def putValue(key,value):
 		DT[key]=value
 		j = jsonify(msg='success',replaced=0)
 		return make_response(j,201,{'Content-Type' : 'application/json'})
+<<<<<<< HEAD
 		
 # idk
 def delValue(key):
@@ -52,6 +57,8 @@ def delValue(key):
 	else:
 		j = jsonify(msg='error',error='key does not exist')
 		return make_response(j,201,{'Content-Type':'application/json'})
+=======
+>>>>>>> origin/master
 
 if __name__ == '__main__':
 	app.run(port=8080)
