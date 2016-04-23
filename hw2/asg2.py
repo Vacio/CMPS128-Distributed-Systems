@@ -8,7 +8,7 @@ DT = {}
 
 def root(key_name):
 	if (request.method == 'GET'):
-		return "Get value of %s" % key_name
+		return getValue(key_name)
 
 	if (request.method == 'PUT'):
 		v = request.form['value']
@@ -21,16 +21,26 @@ def root(key_name):
 		return "Invalid request."
 
 # Working
+def getValue(key):
+	if (key in DT):
+		value = DT[key]
+		j = jsonify(msg='success',value=value)
+		return make_response(j,200,{'Content-Type':'application/json'})
+	else:
+		j = jsonify(msg='error',error='key does not exist')
+		return make_response(j,404,{'Content-Type':'application/json'})
+
+
+# Working
 def putValue(key,value):
 	if (key in DT):
+		DT[key]=value
 		j = jsonify(msg='success',replaced=1)
-		resp = make_response(j,200, {'Content-Type' : 'application/json'})
+		return make_response(j,200, {'Content-Type' : 'application/json'})
 	else:
+		DT[key]=value
 		j = jsonify(msg='success',replaced=0)
-		resp = make_response(j,201,{'Content-Type' : 'application/json'})
-
-	DT[key]=value
-	return resp
+		return make_response(j,201,{'Content-Type' : 'application/json'})
 
 if __name__ == '__main__':
 	app.run(port=8080)
