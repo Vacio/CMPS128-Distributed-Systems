@@ -11,7 +11,7 @@ def root(key_name):
 		return getValue(key_name)
 
 	if (request.method == 'PUT'):
-		v = request.form['value']
+		v = request.form['val']
 		return putValue(key_name,v)
 
 	if (request.method == 'DELETE'):
