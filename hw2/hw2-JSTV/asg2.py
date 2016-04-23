@@ -50,7 +50,7 @@ def delValue(key):
 		return make_response(j,200,{'Content-Type':'application/json'})
 	else:
 		j = jsonify(msg='error',error='key does not exist')
-		return make_response(j,201,{'Content-Type':'application/json'})
+		return make_response(j,404,{'Content-Type':'application/json'})
 
 if __name__ == '__main__':
 	app.run(port=8080)

@@ -13,7 +13,7 @@ class TestHW2(unittest.TestCase):
         self.s = 'http://'+hostname+':'+port
 
     def test_a_put_nonexistent_key(self):
-        print ("Test put non-exist")
+        #print ("Test put non-exist")
         res = requests.put(self.s+'/kvs/foo',data = {'val':'bart'})
         d = res.json()
         self.assertEqual(res.status_code,201)
@@ -21,14 +21,14 @@ class TestHW2(unittest.TestCase):
         self.assertEqual(d['msg'],'success')
 
     def test_b_put_existing_key(self):
-        print ("Test Put existing key")
+        #print ("Test Put existing key")
         res = requests.put(self.s+'/kvs/foo',data= {'val':'bart'})
         d = res.json()
         self.assertEqual(d['replaced'],1)
         self.assertEqual(d['msg'],'success')
 
     def test_c_get_nonexistent_key(self):
-        print ("Test GET non-exist")
+        #print ("Test GET non-exist")
         res = requests.get(self.s+'/kvs/faa')
         d = res.json()
         self.assertEqual(res.status_code,404)
@@ -36,7 +36,7 @@ class TestHW2(unittest.TestCase):
         self.assertEqual(d['error'],'key does not exist')
 
     def test_d_get_existing_key(self):
-        print ("Test GET exist")
+        #print ("Test GET exist")
         res = requests.get(self.s+'/kvs/foo')
         d = res.json()
         self.assertEqual(d['msg'],'success')
