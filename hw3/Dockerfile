@@ -1,5 +1,5 @@
 # Use a standard debian image
-FROM debian:latest
+FROM java:7
 
 # Run updates and install pip,python,curl
 RUN apt-get update && apt-get install -y \
@@ -17,6 +17,9 @@ RUN pip install Flask
 
 #install kazoo
 RUN pip install kazoo
+
+#install zookeeper
+CMD /zookeeper-3.4.8/bin/zkServer.sh start
 
 # Change command to run python scripts
 ENTRYPOINT ["python"]

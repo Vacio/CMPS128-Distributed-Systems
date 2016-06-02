@@ -1,12 +1,14 @@
 from flask import Flask, request, make_response, jsonify
 from kazoo.client import KazooClient, KazooState
-import requests, sys, os, logging
+import requests, sys, os, logging, zc.zk
 
 app = Flask(__name__)
 app.debug = True
 DT = {}
 
 logging.basicConfig()
+
+
 
 #Kazoo set up
 def my_listener(state):
@@ -17,12 +19,17 @@ def my_listener(state):
     else:
         print "reconnecting"
 
+       
+
 
 Emembers = os.getenv('MEMBERS')
 Eport = (os.environ.get('PORT'))
 Eip = (os.environ.get('IP'))
+#zc = zc.zk.ZooKeeper(Eport+':'+Eport)
+#zc.register('/cat/foo', ('0.0.0.0',8080))
 print ("Members: "+ Emembers + " Port: " + Eport + " Ip: "+ Eip)
 zk=KazooClient(hosts=Eport+':'+Eport)
+
 zk.add_listener(my_listener)
 zk.start()
 
