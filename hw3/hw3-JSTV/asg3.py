@@ -1,23 +1,11 @@
 from flask import Flask, request, make_response, jsonify
-from kazoo.client import KazooClient, KazooState
-import requests, sys, os, logging, zc.zk
+import requests, sys, os
 
 app = Flask(__name__)
 app.debug = True
 DT = {}
 
 logging.basicConfig()
-
-
-
-#Kazoo set up
-def my_listener(state):
-    if state == KazooState.LOST:
-        print "lost connection"
-    elif state == KazooState.SUSPENDED:
-        print "suspended"
-    else:
-        print "reconnecting"
 
        
 
@@ -28,10 +16,7 @@ Eip = (os.environ.get('IP'))
 #zc = zc.zk.ZooKeeper(Eport+':'+Eport)
 #zc.register('/cat/foo', ('0.0.0.0',8080))
 print ("Members: "+ Emembers + " Port: " + Eport + " Ip: "+ Eip)
-zk=KazooClient(hosts=Eport+':'+Eport)
 
-zk.add_listener(my_listener)
-zk.start()
 
 @app.route("/kvs/<string:key_name>", methods=['GET', 'PUT', 'DELETE'])
 
