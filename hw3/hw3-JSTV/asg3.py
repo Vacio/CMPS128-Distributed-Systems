@@ -11,18 +11,23 @@ node_self = Node()
 node_list = LinkedList()
 
 
+
 Emembers = os.getenv('MEMBERS')
 Eport = (os.environ.get('PORT'))
 Eip = (os.environ.get('IP'))
 members = Emembers.split(',')
-name_self = Eip+':'+Eport
-node_self.set_name(name_self)
+name_me = str(Eip+':'+Eport)
+node_self.set_name(name_me)
+node_self.set_status(1) 
+node_self.set_role(0)
+node_self.set_IP(Eip)
+node_self.set_port(Eport)
 for mem in members:
-    if mem!=name_self:
-        insert(mem)
+    if mem!=name_me:
+        node_list.insert(mem)
 
-#print ("Members: "+ Emembers + " Port: " + Eport + " Ip: "+ Eip)
-
+#print ("Node Name: "+ node_self.get_name()+ " status: " + str(node_self.get_status()) + " role: " + str(node_self.get_role()) + " port: " + node_self.get_port()+ " IP: " + node_self.get_IP())
+node_list.print_node()
 
 @app.route("/kvs/<string:key_name>", methods=['GET', 'PUT', 'DELETE'])
 
@@ -75,4 +80,4 @@ def delValue(key):
 
 
 if __name__ == '__main__':    
-    app.run(host="0.0.0.0",port=8080)
+    app.run(host=Eip,port=int(Eport))

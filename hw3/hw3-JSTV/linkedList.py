@@ -9,7 +9,7 @@
 #      0 = backup
 
 class Node(object):
-    def __init__(self,Name=None IP=None, Port=None, Status=0, Role=0, Leader=None, Queue=None, nextNode=None):
+    def __init__(self,Name=None,IP=None, Port=None, Status=0, Role=0, Leader=None, Queue=None, nextNode=None):
         self.Name = Name
         self.IP = IP
         self.Port=Port
@@ -22,8 +22,14 @@ class Node(object):
     def get_port(self):
         return self.Port
     
+    def set_port(self, port):
+        self.Port= port
+    
     def get_IP(self):
         return self.IP
+    
+    def set_IP(self, ip):
+        self.IP = ip
     
     def get_name(self):
         return self.Name
@@ -66,43 +72,47 @@ class LinkedList(object):
     def __init__(self,head=None):
         self.head = head
         
-    def insert(self,Name, IP, Port, Status, Role, Leader, Queue):
-        n = Node(Name, IP, Port,Status, Role,Leader, Queue)
+    def insert(self,Name):
+        n = Node(Name)
         n.set_next(self.head)
+        self.head = n
     
-    def search_node (self,Port):
+    def search_node (self,Name):
         pointer = self.head
         found = False
         while pointer and found is False:
-            if self.get_port() == Port:
+            if self.get_name() == Name:
                 found = True
             else:
                 pointer = pointer.get_next()
         return pointer
         
-    def node_status(self,Port):
-        n = search_node(Port)
+    def node_status(self,Name):
+        n = search_node(Name)
         if n is None:
             return None
         return n.get_status()
         
-    def node_role(self,Port):
-        n = search_node(Port)
+    def node_role(self,Name):
+        n = search_node(Name)
         if n is None:
             return None
         return n.get_role()
         
-    def node_queue(self,Port):
-        n = search_node(Port)
+    def node_queue(self,Name):
+        n = search_node(Name)
         if n is None:
             return None
         return n.get_queue()
         
-    def node_leader(self,Port):
-        n = search_node(Port)
+    def node_leader(self,Name):
+        n = search_node(Name)
         if n is None:
             return None
         return n.get_leader()
     
-        
-    
+    def print_node(self):
+        pointer = self.head
+        while pointer is not None:
+            print ("Name: "+ pointer.Name +" Status: "+ str(pointer.Status) +" Role: " +str(pointer.Role)) #+ " Leader: "+ pointer.Leader)
+            pointer = pointer.nextNode
