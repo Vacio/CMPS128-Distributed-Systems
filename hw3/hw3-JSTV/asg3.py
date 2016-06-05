@@ -1,16 +1,15 @@
 from flask import Flask, request, make_response, jsonify
-import requests, sys, os
 from linkedList import *
 from requestQueue import * 
+import requests, sys, os
+
 
 app = Flask(__name__)
 app.debug = True
-
+DT = {}
 #personal node containing all it's own data
 node_self = Node()
 node_list = LinkedList()
-
-
 
 Emembers = os.getenv('MEMBERS')
 Eport = (os.environ.get('PORT'))
@@ -29,8 +28,15 @@ for mem in members:
 #print ("Node Name: "+ node_self.get_name()+ " status: " + str(node_self.get_status()) + " role: " + str(node_self.get_role()) + " port: " + node_self.get_port()+ " IP: " + node_self.get_IP())
 node_list.print_node()
 
-@app.route("/kvs/<string:key_name>", methods=['GET', 'PUT', 'DELETE'])
+def pingNode(destName, item):
+	r = requests.get('http://'+destName+'/ack')
+	return r.text
 
+@app.route('/ack', methods=['GET'])
+def ack():
+	return ""
+
+@app.route("/kvs/<string:key_name>", methods=['GET', 'PUT', 'DELETE'])
 def root(key_name):
 	if (request.method == 'GET'):
 		return getValue(key_name)
@@ -44,7 +50,6 @@ def root(key_name):
 		return delValue(key_name)
 	else:
 		return "Invalid request."
-
 # Working
 def getValue(key):
 	if (key in DT):
@@ -54,8 +59,6 @@ def getValue(key):
 	else:
 		j = jsonify(msg='error',error='key does not exist')
 		return make_response(j,404,{'Content-Type':'application/json'})
-
-
 # Working
 def putValue(key,value):
 	if (key in DT):
@@ -66,7 +69,6 @@ def putValue(key,value):
 		DT[key]=value
 		j = jsonify(msg='success',replaced=0)
 		return make_response(j,201,{'Content-Type' : 'application/json'})
-
 # idk
 def delValue(key):
 	if (key in DT):
@@ -77,6 +79,12 @@ def delValue(key):
 		j = jsonify(msg='error',error='key does not exist')
 		return make_response(j,404,{'Content-Type':'application/json'})
         
+# Tests pinging to node 10.0.0.21:12346
+@app.route("/testping", methods=['GET'])
+def getPing():
+	# 'http://10.0.0.21:12346/kvs/foo'
+	# r = requests.get('http://'+members[1]+'/kvs/foo', timeout = 3)
+	return pingNode('10.0.0.21:12346', 'Add Items here')
 
 
 if __name__ == '__main__':    
