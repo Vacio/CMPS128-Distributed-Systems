@@ -28,13 +28,19 @@ for mem in members:
 #print ("Node Name: "+ node_self.get_name()+ " status: " + str(node_self.get_status()) + " role: " + str(node_self.get_role()) + " port: " + node_self.get_port()+ " IP: " + node_self.get_IP())
 node_list.print_node()
 
+# def pingNode(destName, item):
+# 	r = requests.get('http://'+destName+'/ack')
+# 	return r.text
+
 def pingNode(destName, item):
-	r = requests.get('http://'+destName+'/ack')
+	r = requests.put('http://'+destName+'/ack', {'node':item})
 	return r.text
 
-@app.route('/ack', methods=['GET'])
+# Recieves node and Prints the node object.
+@app.route('/ack', methods=['PUT'])
 def ack():
-	return ""
+	x = request.form['node']
+	return x
 
 @app.route("/kvs/<string:key_name>", methods=['GET', 'PUT', 'DELETE'])
 def root(key_name):
@@ -84,7 +90,7 @@ def delValue(key):
 def getPing():
 	# 'http://10.0.0.21:12346/kvs/foo'
 	# r = requests.get('http://'+members[1]+'/kvs/foo', timeout = 3)
-	return pingNode('10.0.0.21:12346', 'Add Items here')
+	return pingNode('10.0.0.21:12346', node_self)
 
 
 if __name__ == '__main__':    
