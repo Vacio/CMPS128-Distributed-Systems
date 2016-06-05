@@ -9,7 +9,9 @@
 #      0 = backup
 
 class Node(object):
-    def __init__(self,Port=None, Status=0, Role=0, Leader=None, Queue=None, nextNode=None):
+    def __init__(self,Name=None IP=None, Port=None, Status=0, Role=0, Leader=None, Queue=None, nextNode=None):
+        self.Name = Name
+        self.IP = IP
         self.Port=Port
         self.Status=Status
         self.Role = Role
@@ -19,6 +21,15 @@ class Node(object):
     
     def get_port(self):
         return self.Port
+    
+    def get_IP(self):
+        return self.IP
+    
+    def get_name(self):
+        return self.Name
+    
+    def set_name(self, name):
+        self.Name= name
     
     def set_status(self, status):
         self.Status = status
@@ -55,8 +66,8 @@ class LinkedList(object):
     def __init__(self,head=None):
         self.head = head
         
-    def insert(self, Port, Status, Role, Leader, Queue):
-        n = Node(Port,Status, Role,Leader, Queue)
+    def insert(self,Name, IP, Port, Status, Role, Leader, Queue):
+        n = Node(Name, IP, Port,Status, Role,Leader, Queue)
         n.set_next(self.head)
     
     def search_node (self,Port):

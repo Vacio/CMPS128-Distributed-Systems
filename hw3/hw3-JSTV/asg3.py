@@ -1,26 +1,30 @@
 from flask import Flask, request, make_response, jsonify
 import requests, sys, os
+from linkedList import *
+from requestQueue import * 
 
 app = Flask(__name__)
 app.debug = True
-DT = {}
 
-logging.basicConfig()
-
-       
+#personal node containing all it's own data
+node_self = Node()
+node_list = LinkedList()
 
 
 Emembers = os.getenv('MEMBERS')
 Eport = (os.environ.get('PORT'))
 Eip = (os.environ.get('IP'))
-#zc = zc.zk.ZooKeeper(Eport+':'+Eport)
-#zc.register('/cat/foo', ('0.0.0.0',8080))
-print ("Members: "+ Emembers + " Port: " + Eport + " Ip: "+ Eip)
+members = Emembers.split(',')
+name_self = Eip+':'+Eport
+node_self.set_name(name_self)
+for mem in members:
+    if mem!=name_self:
+        insert(mem)
+
+#print ("Members: "+ Emembers + " Port: " + Eport + " Ip: "+ Eip)
 
 
 @app.route("/kvs/<string:key_name>", methods=['GET', 'PUT', 'DELETE'])
-
-
 
 def root(key_name):
 	if (request.method == 'GET'):
@@ -70,5 +74,5 @@ def delValue(key):
         
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':    
     app.run(host="0.0.0.0",port=8080)

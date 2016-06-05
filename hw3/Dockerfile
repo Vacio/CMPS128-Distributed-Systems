@@ -1,5 +1,5 @@
 # Use a standard debian image
-FROM java:7
+FROM debian:latest
 
 # Run updates and install pip,python,curl
 RUN apt-get update && apt-get install -y \
@@ -13,13 +13,7 @@ COPY . /hw3-JSTV
 WORKDIR /hw3-JSTV/hw3-JSTV
 
 # Install Flask
-RUN pip install Flask
-
-#install kazoo
-RUN pip install kazoo
-
-#install zookeeper
-CMD /zookeeper-3.4.8/bin/zkServer.sh start
+RUN pip install -r flaskcheck.txt
 
 # Change command to run python scripts
 ENTRYPOINT ["python"]
