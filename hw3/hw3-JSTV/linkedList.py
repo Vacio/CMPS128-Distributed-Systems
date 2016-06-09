@@ -9,7 +9,7 @@
 #      0 = backup
 
 class Node(object):
-    def __init__(self,Name=None,IP=None, Port=None, Status=0, Role=0, Leader=None, Queue=None, nextNode=None):
+    def __init__(self,Name=None,IP=None, Port=None, Status=0, Role=0, Leader="", Queue="", nextNode=None):
         self.Name = Name
         self.IP = IP
         self.Port=Port
@@ -72,8 +72,8 @@ class LinkedList(object):
     def __init__(self,head=None):
         self.head = head
         
-    def insert(self,Name):
-        n = Node(Name)
+    def insert(self,Name,IP,Port):
+        n = Node(Name,IP,Port)
         n.set_next(self.head)
         self.head = n
     
@@ -101,31 +101,31 @@ class LinkedList(object):
     def node_status(self,Name):
         n = self.search_node(Name)
         if n is None:
-            return None
+            return ""
         return n.get_status()
         
     def node_role(self,Name):
         n = self.search_node(Name)
         if n is None:
-            return None
+            return ""
         return n.get_role()
         
     def node_queue(self,Name):
         n = self.search_node(Name)
         if n is None:
-            return None
+            return ""
         return n.get_queue()
         
     def node_leader(self,Name):
         n = self.search_node(Name)
         if n is None:
-            return None
+            return ""
         return n.get_leader()
     
     def print_node(self):
 		pointer = self.head
 		cat = ""
 		while pointer is not None:
-			cat += ("Name: "+ pointer.Name +" Status: "+ str(pointer.Status) +" Role: " +str(pointer.Role) +"\n") #+ " Leader: "+ pointer.Leader)
+			cat += ("Name: "+ pointer.Name + " Status: "+ str(pointer.Status) +" Role: " +str(pointer.Role) + " Leader: "+ pointer.Leader+"\n")
 			pointer = pointer.nextNode
 		return cat

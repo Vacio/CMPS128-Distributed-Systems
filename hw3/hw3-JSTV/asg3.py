@@ -18,18 +18,7 @@ Eip = (os.environ.get('IP'))
 members = Emembers.split(',')
 name_me = str(Eip+':'+Eport)
 
-
-node_self.set_name(name_me)
-node_self.set_status(1) 
-node_self.set_role(0)
-node_self.set_IP(Eip)
-node_self.set_port(Eport)
-for mem in members:
-	node_list.insert(mem)
-node_list.update_node(name_me,1, 0, None,None)
-node_list.update_node(name_me,1, 0, None,None)
-
-	
+##TESTING##
 #print ("Node Name: "+ node_self.get_name()+ " status: " + str(node_self.get_status()) + " role: " + str(node_self.get_role()) + " port: " + node_self.get_port()+ " IP: " + node_self.get_IP())
 #print(node_list.print_node())
 '''node_list.update_node('10.0.0.21:12346',1, 0, None,None)
@@ -37,7 +26,18 @@ print(node_list.print_node())'''
 # def pingNode(destName, node_self):
 # 	r = requests.get('http://'+destName+'/ack')
 # 	return r.text
-	
+
+def initThisNode():
+    node_self.set_name(name_me)
+    node_self.set_status(1) 
+    node_self.set_role(0)
+    node_self.set_IP(Eip)
+    node_self.set_port(Eport)
+    for mem in members:
+        mIP,mPort=mem.split(":")
+        node_list.insert(mem,mIP,mPort)
+    node_list.update_node(name_me,1, 0, "","")
+    
 
 def pingNode(destName):
 	try:
@@ -133,5 +133,6 @@ def heartbeat():
 
 if __name__ == '__main__':
 	#heartbeat()
-	threading.Timer(2.0,heartbeat).start()
-	app.run(host=Eip,port=int(Eport))
+    initThisNode()
+    threading.Timer(2.0,heartbeat).start()
+    app.run(host=Eip,port=int(Eport))
