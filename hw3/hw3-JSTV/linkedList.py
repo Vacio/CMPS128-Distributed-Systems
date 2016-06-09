@@ -9,7 +9,7 @@
 #      0 = backup
 
 class Node(object):
-    def __init__(self,Name=None,IP=None, Port=None, Status=0, Role=0, Leader="", Queue="", nextNode=None):
+    def __init__(self,Name=None,IP=None, Port=None, Status=0, Role=0, Leader="", Queue="", nextNode=None, LeaderElection=False):
         self.Name = Name
         self.IP = IP
         self.Port=Port
@@ -18,6 +18,7 @@ class Node(object):
         self.Leader=Leader #set leader variable to port
         self.Queue=Queue
         self.nextNode=nextNode
+        self.LeaderElection=LeaderElection
     
     def get_port(self):
         return self.Port
@@ -67,6 +68,12 @@ class Node(object):
     def get_next(self):
         return self.nextNode
         
+    def set_LE(self, LE):
+        self.LeaderElection = LE
+    
+    def get_LE(self):
+        return self.LeaderElection
+        
 class LinkedList(object):
 
     def __init__(self,head=None):
@@ -88,15 +95,16 @@ class LinkedList(object):
                 pointer = pointer.get_next()
         return pointer
 		
-    def update_node(self, Name, status, role, leader, queue):
-		n = self.search_node(Name)
-		if n is None:
-			return -1
-		n.set_status(status)
-		n.set_role(role)
-		n.set_leader(leader)
-		n.set_queue(queue)
-		return 1
+    def update_node(self, Name, status, role, leader, queue, LE):
+        n = self.search_node(Name)
+        if n is None:
+            return -1
+        n.set_status(status)
+        n.set_role(role)
+        n.set_leader(leader)
+        n.set_queue(queue)
+        n.set_LE(LE)
+        return 1
         
     def node_status(self,Name):
         n = self.search_node(Name)

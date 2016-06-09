@@ -35,6 +35,7 @@ def initThisNode():
     node_self.set_role(1)
     node_self.set_queue("")
     node_self.set_leader(name_me)
+    node_self.set_LE(False)
     for mem in members:
         if mem != name_me:
             mIP,mPort=mem.split(":")
@@ -49,6 +50,7 @@ def checkLeader(pLeader):
         node_self.set_leader(pLeader)
         if pLeader != name_me:
             node_self.set_role(0)
+            #insert transfer here
         else:
             node_self.set_role(1)
 
@@ -64,8 +66,9 @@ def pingNode(destName):
             pLeader = ping['leader']
             pPort = ping['port']
             pQueue = ping['queue']
+            pLE = ping['LE']
             checkLeader(pLeader)
-            pingStatus = node_list.update_node(pName,pStatus, pRole, pLeader,pQueue)
+            pingStatus = node_list.update_node(pName,pStatus, pRole, pLeader,pQueue, pLE)
             if pingStatus == -1:
                 cat += destName +"ERROR\n"
                 return cat
@@ -81,7 +84,7 @@ def pingNode(destName):
 # Recieves node and Prints the node object.
 @app.route('/ack', methods=['GET'])
 def ack():
-	payload = jsonify(name=node_self.get_name(), ip=node_self.get_IP(), port=node_self.get_port(), status=node_self.get_status(), role=node_self.get_role(), leader=node_self.get_leader(), queue='Queue')
+	payload = jsonify(name=node_self.get_name(), ip=node_self.get_IP(), port=node_self.get_port(), status=node_self.get_status(), role=node_self.get_role(), leader=node_self.get_leader(), queue='Queue', LE=node_self.get_LE())
 	return make_response(payload,200,{'Content-Type':'application/json'}) #{'http://'+destName+'/ack', data=payload)
 
 @app.route("/kvs/<string:key_name>", methods=['GET', 'PUT', 'DELETE'])
