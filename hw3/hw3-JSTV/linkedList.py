@@ -154,6 +154,6 @@ class LinkedList(object):
 		pointer = self.head
 		cat = ""
 		while pointer is not None:
-			cat += ("Name: "+ pointer.Name + " Status: "+ str(pointer.Status) +" Role: " +str(pointer.Role) + " Leader: "+ pointer.Leader+"\n")
+			cat += ("Name: "+ pointer.Name + " Status: "+ str(pointer.Status) +" Role: " +str(pointer.Role) + " Leader: "+ pointer.Leader+" LE: "+ str(pointer.LeaderElection)+"\n")
 			pointer = pointer.nextNode
 		return cat

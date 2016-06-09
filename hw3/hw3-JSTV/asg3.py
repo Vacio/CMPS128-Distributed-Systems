@@ -17,6 +17,7 @@ Eport = (os.environ.get('PORT'))
 Eip = (os.environ.get('IP'))
 members = Emembers.split(',')
 name_me = str(Eip+':'+Eport)
+startElection=False
 
 ##TESTING##
 #print ("Node Name: "+ node_self.get_name()+ " status: " + str(node_self.get_status()) + " role: " + str(node_self.get_role()) + " port: " + node_self.get_port()+ " IP: " + node_self.get_IP())
@@ -67,6 +68,8 @@ def pingNode(destName):
             pPort = ping['port']
             pQueue = ping['queue']
             pLE = ping['LE']
+          #  if pLE == False:
+          #      startElection = False
             checkLeader(pLeader)
             pingStatus = node_list.update_node(pName,pStatus, pRole, pLeader,pQueue, pLE)
             if pingStatus == -1:
@@ -75,11 +78,18 @@ def pingNode(destName):
             cat = destName + " Success\n"
             return cat
     except(requests.ConnectionError, requests.HTTPError, requests.Timeout):	
-		#set the node status to dead if response not given
-		n = node_list.search_node(destName)
-		n.set_status(0)
-		cat = destName +" Dead \n"
-		return cat
+        #set the node status to dead if response not given
+        n = node_list.search_node(destName)
+        n.set_status(0)
+        n.set_leader(":")
+        n.set_role(0)
+        if (node_self.get_leader()==destName):
+            node_self.set_leader(" : ")
+            node_self.set_LE(True)
+            #n.set_LE(True)
+            leaderElection()
+        cat = destName +" Dead \n"
+        return cat
 
 # Recieves node and Prints the node object.
 @app.route('/ack', methods=['GET'])
@@ -139,15 +149,32 @@ def getPing(mem):
 	cat += pingNode(mem)
 	cat += node_list.print_node()
 	print cat
-
+    
+def leaderElection():
+    newLeader=0
+    newLeaderName =":"
+    for mem in members:
+        if (name_me!=mem):
+            pointer = node_list.search_node(mem)
+            if (pointer.get_status()==1):
+                if int(pointer.get_port()) > newLeader:
+                    newLeader= pointer.get_port()
+                    newLeaderName=pointer.get_name()
+    if int(node_self.get_port()) > newLeader:
+        newLeader= node_self.get_port()
+        newLeaderName=node_self.get_name()
+    node_self.set_leader(newLeaderName)
+    node_self.set_LE(False)
+    
 def heartbeat():
-	while True:
-		for mem in members:
+    startElection=False
+    while True:
+        for mem in members:
 			if (name_me!=mem):
 				#threading.Timer(5.0, getPing, (mem,)).run()
 				getPing(mem)
-		sys.stdout.flush()		
-		time.sleep(4.0)
+        sys.stdout.flush()		
+        time.sleep(6.0)
 
 if __name__ == '__main__':
 	#heartbeat()
