@@ -77,42 +77,55 @@ class LinkedList(object):
         n.set_next(self.head)
         self.head = n
     
-    def search_node (self,Name):
+    def search_node(self,Name):
         pointer = self.head
         found = False
         while pointer and found is False:
-            if self.get_name() == Name:
+            if (pointer.get_name() == Name):
                 found = True
+                return pointer
             else:
                 pointer = pointer.get_next()
         return pointer
+		
+    def update_node(self, Name, status, role, leader, queue):
+		n = self.search_node(Name)
+		if n is None:
+			return -1
+		n.set_status(status)
+		n.set_role(role)
+		n.set_leader(leader)
+		n.set_queue(queue)
+		return 1
         
     def node_status(self,Name):
-        n = search_node(Name)
+        n = self.search_node(Name)
         if n is None:
             return None
         return n.get_status()
         
     def node_role(self,Name):
-        n = search_node(Name)
+        n = self.search_node(Name)
         if n is None:
             return None
         return n.get_role()
         
     def node_queue(self,Name):
-        n = search_node(Name)
+        n = self.search_node(Name)
         if n is None:
             return None
         return n.get_queue()
         
     def node_leader(self,Name):
-        n = search_node(Name)
+        n = self.search_node(Name)
         if n is None:
             return None
         return n.get_leader()
     
     def print_node(self):
-        pointer = self.head
-        while pointer is not None:
-            print ("Name: "+ pointer.Name +" Status: "+ str(pointer.Status) +" Role: " +str(pointer.Role)) #+ " Leader: "+ pointer.Leader)
-            pointer = pointer.nextNode
+		pointer = self.head
+		cat = ""
+		while pointer is not None:
+			cat += ("Name: "+ pointer.Name +" Status: "+ str(pointer.Status) +" Role: " +str(pointer.Role) +"\n") #+ " Leader: "+ pointer.Leader)
+			pointer = pointer.nextNode
+		return cat
