@@ -29,34 +29,49 @@ print(node_list.print_node())'''
 
 def initThisNode():
     node_self.set_name(name_me)
-    node_self.set_status(1) 
-    node_self.set_role(0)
     node_self.set_IP(Eip)
     node_self.set_port(Eport)
+    node_self.set_status(1) 
+    node_self.set_role(1)
+    node_self.set_queue("")
+    node_self.set_leader(name_me)
     for mem in members:
-        mIP,mPort=mem.split(":")
-        node_list.insert(mem,mIP,mPort)
-    node_list.update_node(name_me,1, 0, "","")
+        if mem != name_me:
+            mIP,mPort=mem.split(":")
+            node_list.insert(mem,mIP,mPort)
+    #node_list.update_node(name_me,1, 0, name_me,"")
     
+def checkLeader(pLeader):
+    currLeader = node_self.get_leader()
+    cIP,cPort=currLeader.split(":")
+    nIP,nPort=pLeader.split(":")
+    if nPort > cPort:
+        node_self.set_leader(pLeader)
+        if pLeader != name_me:
+            node_self.set_role(0)
+        else:
+            node_self.set_role(1)
 
 def pingNode(destName):
-	try:
-		r = requests.get('http://'+destName+'/ack', timeout=2)
+    try:
+        r = requests.get('http://'+destName+'/ack', timeout=2)
 		#update node's data if found 
-		if (r.status_code == 200):
-			ping = json.loads(r.text)
-			pName = ping['name']
-			pStatus = ping['status']
-			pRole = ping['role']
-			pLeader = ping['leader']
-			pQueue = ping['queue']
-			pingStatus = node_list.update_node(pName,pStatus, pRole, pLeader,pQueue)
-			if pingStatus == -1:
-				cat += destName +"ERROR\n"
-				return cat
-			cat = destName + " Success\n"
-			return cat
-	except (requests.ConnectionError, requests.HTTPError, requests.Timeout):	
+        if (r.status_code == 200):
+            ping = json.loads(r.text)
+            pName = ping['name']
+            pStatus = ping['status']
+            pRole = ping['role']
+            pLeader = ping['leader']
+            pPort = ping['port']
+            pQueue = ping['queue']
+            checkLeader(pLeader)
+            pingStatus = node_list.update_node(pName,pStatus, pRole, pLeader,pQueue)
+            if pingStatus == -1:
+                cat += destName +"ERROR\n"
+                return cat
+            cat = destName + " Success\n"
+            return cat
+    except(requests.ConnectionError, requests.HTTPError, requests.Timeout):	
 		#set the node status to dead if response not given
 		n = node_list.search_node(destName)
 		n.set_status(0)

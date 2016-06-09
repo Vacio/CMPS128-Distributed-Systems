@@ -121,6 +121,26 @@ class LinkedList(object):
         if n is None:
             return ""
         return n.get_leader()
+        
+    def isThereALeader(self, Snode):
+        pointer = self.head
+        overallLeader = 0
+        overallNameofLeader = "LEADER"
+        while pointer is not None:
+            if (pointer.get_status==1):
+               node_L = pointer.get_leader()
+               overallNameofLeader = node_L
+               #if node_L != "":
+                    #ip,port=node_L.split(":")
+                    #if overallLeader<int(port):
+                    #overallLeader=port
+                    #overallNameofLeader = ip+":"+port
+        #cip,currentLeader = Snode.get_leader().split(":")
+        #if overallLeader > int(currentLeader):
+            #print ("sarah did good -"+overallNameofLeader +"\n")
+            #Snode.set_leader(overallNameofLeader)
+        #   return overallNameofLeader
+        return overallNameofLeader
     
     def print_node(self):
 		pointer = self.head
