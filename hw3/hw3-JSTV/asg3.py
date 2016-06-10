@@ -132,6 +132,7 @@ def root(key_name):
                 v = request.form['val']
                 url = 'http://'+node_self.get_leader()+'/kvs/'+key_name
                 res = requests.put(url,data={'val' : v})
+                return make_response(res.text,201)
                 return res.text
 
             if (request.method == 'DELETE'):
