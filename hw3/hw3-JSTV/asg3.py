@@ -171,10 +171,10 @@ def leaderMessage(method,keyname,value,nodeName):
     url = 'http://'+nodeName+'/kvs/'+keyname
     try:
         if (method=='PUT'):
-            res = requests.put(url, data={'val' : value}, timeout=2)
+            res = requests.put(url, data={'val' : value}, timeout=0.15)
             return str(res.status_code)
         else:
-            res = requests.delete(url, timeout=2)
+            res = requests.delete(url, timeout=0.15)
             return str(res.status_code)
     except (requests.ConnectionError, requests.HTTPError, requests.Timeout):
         getPing(nodeName)
@@ -250,10 +250,10 @@ def heartbeat():
         if(int(node_self.get_role()) == 1):
             print leaderDuties()
 
-        time.sleep(4.0)
+        time.sleep(0.25)
 
 if __name__ == '__main__':
     #heartbeat()
     initThisNode()
-    threading.Timer(2.0,heartbeat).start()
+    threading.Timer(0.5,heartbeat).start()
     app.run(host=Eip,port=int(Eport))
