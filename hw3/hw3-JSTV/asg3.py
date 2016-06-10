@@ -105,30 +105,31 @@ def root(key_name):
         return getValue(key_name)
     # If i am a Leader
     if (node_self.get_role()==1):
-        v = request.form['val']
-        if (request.method == 'PUT'):
-            node_self.addQueue('PUT',key_name,v)
-            return putValue(key_name, v)
-
         if (request.method == 'DELETE'):
             node_self.addQueue('DELETE',key_name,"")
             return delValue(key_name)
 
+        if (request.method == 'PUT'):
+            v = request.form['val']
+            node_self.addQueue('PUT',key_name,v)
+            return putValue(key_name, v)
         else:
             return "Leader, Invalid Request"
     # If I am a Backup
     if (node_self.get_role()==0):
         # if Request was from Leader, Do the command
         if (request.remote_addr == (node_self.get_leader())[:-6]):
-            v = request.form['val']
-            if (request.method == 'PUT'):
-                return putValue(key_name,v)
             if (request.method == 'DELETE'):
                 return delValue(key_name)
+            if (request.method == 'PUT'):
+                v = request.form['val']
+                return putValue(key_name,v)
+
+
         # if Request was NOT from a leader, send the request to my leader     
         else:
-            v = request.form['val']
             if (request.method == 'PUT'):
+                v = request.form['val']
                 url = 'http://'+node_self.get_leader()+'/kvs/'+key_name
                 res = requests.put(url,data={'val' : v})
                 return res.text
@@ -151,17 +152,17 @@ def leaderDuties():
     if bool(lQueue):
         task = node_self.subQueue(lQueue)
         method, keyname, value = task
-        #return "Made to broadcast!"
-        leaderBroadcast(method,keyname,value)
-        return cat + " Good"
-    return cat + " BAAAAAD"
+        return leaderBroadcast(method,keyname,value)
+    return cat + "Empty Queue"
          
 def leaderBroadcast(method, keyname, value):
+    cat = "BroadCast Message: "
     for mem in members:
         if mem != name_me:
             pointer = node_list.search_node(mem)
             if (pointer.get_status()==1):
-                leaderMessage(method,keyname,value,pointer.get_name())
+                cat += leaderMessage(method,keyname,value,pointer.get_name()) + ";"
+    return cat
               
                     
         
@@ -169,9 +170,11 @@ def leaderMessage(method,keyname,value,nodeName):
     url = 'http://'+nodeName+'/kvs/'+keyname
     try:
         if (method=='PUT'):
-            res = requests.put(url, timeout=2, data={'val' : value})
+            res = requests.put(url, data={'val' : value}, timeout=2)
+            return str(res.status_code)
         else:
             res = requests.delete(url, timeout=2)
+            return str(res.status_code)
     except (requests.ConnectionError, requests.HTTPError, requests.Timeout):
         getPing(nodeName)
         pointer = node_list.search_node(nodeName)
@@ -216,7 +219,7 @@ def getPing(mem):
     # r = requests.get('http://'+members[1]+'/kvs/foo', timeout = 3)
     cat = ""
     cat += str(pingNode(mem))
-    cat += node_list.print_node()
+    # cat += node_list.print_node()
     print cat
     
 def leaderElection():
@@ -246,7 +249,7 @@ def heartbeat():
         if(int(node_self.get_role()) == 1):
             print leaderDuties()
 
-        time.sleep(6.0)
+        time.sleep(4.0)
 
 if __name__ == '__main__':
     #heartbeat()
