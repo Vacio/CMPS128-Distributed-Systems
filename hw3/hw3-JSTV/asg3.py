@@ -1,6 +1,6 @@
-from flask import Flask, request, make_response, jsonify
+from flask import Flask, request, make_response, render_template, jsonify, redirect
 from linkedList import *
-from requestQueue import * 
+# from requestQueue import * 
 import requests, sys, os, json, threading, time
 
 
@@ -25,8 +25,8 @@ startElection=False
 '''node_list.update_node('10.0.0.21:12346',1, 0, None,None)
 print(node_list.print_node())'''
 # def pingNode(destName, node_self):
-# 	r = requests.get('http://'+destName+'/ack')
-# 	return r.text
+#     r = requests.get('http://'+destName+'/ack')
+#     return r.text
 
 def initThisNode():
     node_self.set_name(name_me)
@@ -34,7 +34,7 @@ def initThisNode():
     node_self.set_port(Eport)
     node_self.set_status(1) 
     node_self.set_role(1)
-    node_self.set_queue("")
+    node_self.set_queue({})
     node_self.set_leader(name_me)
     node_self.set_LE(False)
     for mem in members:
@@ -58,7 +58,7 @@ def checkLeader(pLeader):
 def pingNode(destName):
     try:
         r = requests.get('http://'+destName+'/ack', timeout=2)
-		#update node's data if found 
+        #update node's data if found 
         if (r.status_code == 200):
             ping = json.loads(r.text)
             pName = ping['name']
@@ -77,7 +77,7 @@ def pingNode(destName):
                 return cat
             cat = destName + " Success\n"
             return cat
-    except(requests.ConnectionError, requests.HTTPError, requests.Timeout):	
+    except(requests.ConnectionError, requests.HTTPError, requests.Timeout):    
         #set the node status to dead if response not given
         n = node_list.search_node(destName)
         n.set_status(0)
@@ -94,61 +94,76 @@ def pingNode(destName):
 # Recieves node and Prints the node object.
 @app.route('/ack', methods=['GET'])
 def ack():
-	payload = jsonify(name=node_self.get_name(), ip=node_self.get_IP(), port=node_self.get_port(), status=node_self.get_status(), role=node_self.get_role(), leader=node_self.get_leader(), queue='Queue', LE=node_self.get_LE())
-	return make_response(payload,200,{'Content-Type':'application/json'}) #{'http://'+destName+'/ack', data=payload)
+    payload = jsonify(name=node_self.get_name(), ip=node_self.get_IP(), port=node_self.get_port(), status=node_self.get_status(), role=node_self.get_role(), leader=node_self.get_leader(), queue=node_self.get_queue(), LE=node_self.get_LE())
+    return make_response(payload,200,{'Content-Type':'application/json'}) #{'http://'+destName+'/ack', data=payload)
 
 @app.route("/kvs/<string:key_name>", methods=['GET', 'PUT', 'DELETE'])
 def root(key_name):
-	if (request.method == 'GET'):
-		return getValue(key_name)
+    if (request.method == 'GET'):
+        return getValue(key_name)
 
-	if (request.method == 'PUT'):
-		v = request.form['val']
-		return putValue(key_name,v)
+    if (request.method == 'PUT'):
+        req = request.form
+        v = request.form['val']
+        if (int(node_self.get_role()) == 1):
+            node_self.addQueue(key_name, v)
+            return putValue(key_name,v)
+        else:
+            #r = requests.put('http://'+node_self.get_leader()+'/kvs/'+key_name, data=json.dumps(data))
+            url = 'http://'+node_self.get_leader()+'/kvs/'+key_name
+            form = 'stuff:' +str(req)
+            rest = url +'\n'+form
+            res = requests.put(url,data={'val' : 'Bart'})
+            return res.text
+          
+          #return redirect('http://'+node_self.get_leader()+'/kvs/foo', data = req )
+            
+        #cat = "Item: " + qitem + " time: " + str(qtime)
+        #return putValue(key_name,v)
 
-	if (request.method == 'DELETE'):
-		#return "Delete value and key: %s" % key_name
-		return delValue(key_name)
-	else:
-		return "Invalid request."
+    if (request.method == 'DELETE'):
+        #return "Delete value and key: %s" % key_name
+        return delValue(key_name)
+    else:
+        return "Invalid request."
 # Working
 def getValue(key):
-	if (key in DT):
-		value = DT[key]
-		j = jsonify(msg='success',value=value)
-		return make_response(j,200,{'Content-Type':'application/json'})
-	else:
-		j = jsonify(msg='error',error='key does not exist')
-		return make_response(j,404,{'Content-Type':'application/json'})
+    if (key in DT):
+        value = DT[key]
+        j = jsonify(msg='success',value=value)
+        return make_response(j,200,{'Content-Type':'application/json'})
+    else:
+        j = jsonify(msg='error',error='key does not exist')
+        return make_response(j,404,{'Content-Type':'application/json'})
 # Working
 def putValue(key,value):
-	if (key in DT):
-		DT[key]=value
-		j = jsonify(msg='success',replaced=1)
-		return make_response(j,200, {'Content-Type' : 'application/json'})
-	else:
-		DT[key]=value
-		j = jsonify(msg='success',replaced=0)
-		return make_response(j,201,{'Content-Type' : 'application/json'})
+    if (key in DT):
+        DT[key]=value
+        j = jsonify(msg='success',replaced=1)
+        return make_response(j,200, {'Content-Type' : 'application/json'})
+    else:
+        DT[key]=value
+        j = jsonify(msg='success',replaced=0)
+        return make_response(j,201,{'Content-Type' : 'application/json'})
 # idk
 def delValue(key):
-	if (key in DT):
-		DT.pop(key,None)
-		j = jsonify(msg='success')
-		return make_response(j,200,{'Content-Type':'application/json'})
-	else:
-		j = jsonify(msg='error',error='key does not exist')
-		return make_response(j,404,{'Content-Type':'application/json'})
+    if (key in DT):
+        DT.pop(key,None)
+        j = jsonify(msg='success')
+        return make_response(j,200,{'Content-Type':'application/json'})
+    else:
+        j = jsonify(msg='error',error='key does not exist')
+        return make_response(j,404,{'Content-Type':'application/json'})
         
 # Tests pinging to node 10.0.0.21:12346
 @app.route("/testping", methods=['GET'])
 def getPing(mem):
-	# 'http://10.0.0.21:12346/kvs/foo'
-	# r = requests.get('http://'+members[1]+'/kvs/foo', timeout = 3)
-	cat = ""
-	cat += pingNode(mem)
-	cat += node_list.print_node()
-	print cat
+    # 'http://10.0.0.21:12346/kvs/foo'
+    # r = requests.get('http://'+members[1]+'/kvs/foo', timeout = 3)
+    cat = ""
+    cat += str(pingNode(mem))
+    cat += node_list.print_node()
+    print cat
     
 def leaderElection():
     newLeader=0
@@ -170,14 +185,14 @@ def heartbeat():
     startElection=False
     while True:
         for mem in members:
-			if (name_me!=mem):
-				#threading.Timer(5.0, getPing, (mem,)).run()
-				getPing(mem)
-        sys.stdout.flush()		
+            if (name_me!=mem):
+                #threading.Timer(5.0, getPing, (mem,)).run()
+                getPing(mem)
+        sys.stdout.flush()        
         time.sleep(6.0)
 
 if __name__ == '__main__':
-	#heartbeat()
+    #heartbeat()
     initThisNode()
     threading.Timer(2.0,heartbeat).start()
     app.run(host=Eip,port=int(Eport))

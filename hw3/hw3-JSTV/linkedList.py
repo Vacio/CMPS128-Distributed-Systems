@@ -8,15 +8,18 @@
 #Role: 1 = leader
 #      0 = backup
 
+# from requestQueue import *
+from flask import jsonify
+import time
 class Node(object):
-    def __init__(self,Name=None,IP=None, Port=None, Status=0, Role=0, Leader="", Queue="", nextNode=None, LeaderElection=False):
+    def __init__(self,Name=None,IP=None, Port=None, Status=0, Role=0, Leader="", Queue={}, nextNode=None, LeaderElection=False):
         self.Name = Name
         self.IP = IP
         self.Port=Port
         self.Status=Status
         self.Role = Role
         self.Leader=Leader #set leader variable to port
-        self.Queue=Queue
+        self.Queue= Queue
         self.nextNode=nextNode
         self.LeaderElection=LeaderElection
     
@@ -58,6 +61,11 @@ class Node(object):
     
     def set_queue(self, queue):
         self.Queue = queue
+
+    def addQueue(self, key, value):
+        tick = time.time()
+        self.Queue[key] = [(tick, value)]
+        return self.Queue[key]
         
     def get_queue(self):
         return self.Queue
@@ -151,9 +159,9 @@ class LinkedList(object):
         return overallNameofLeader
     
     def print_node(self):
-		pointer = self.head
-		cat = ""
-		while pointer is not None:
-			cat += ("Name: "+ pointer.Name + " Status: "+ str(pointer.Status) +" Role: " +str(pointer.Role) + " Leader: "+ pointer.Leader+" LE: "+ str(pointer.LeaderElection)+"\n")
-			pointer = pointer.nextNode
-		return cat
+        pointer = self.head
+        cat = ""
+        while pointer is not None:
+            cat += ("Name: "+ pointer.Name + " Status: "+ str(pointer.Status) +" Role: " +str(pointer.Role) + " Leader: "+ pointer.Leader+" LE: "+ str(pointer.LeaderElection)+"\n")
+            pointer = pointer.nextNode
+        return cat
