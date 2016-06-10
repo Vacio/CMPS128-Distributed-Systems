@@ -109,21 +109,21 @@ def root(key_name):
             node_self.addQueue(key_name, v)
             return putValue(key_name,v)
         else:
-            #r = requests.put('http://'+node_self.get_leader()+'/kvs/'+key_name, data=json.dumps(data))
             url = 'http://'+node_self.get_leader()+'/kvs/'+key_name
-            form = 'stuff:' +str(req)
-            rest = url +'\n'+form
-            res = requests.put(url,data={'val' : 'Bart'})
+            #form = 'stuff:' +str(req)
+            #rest = url +'\n'+form
+            res = requests.put(url,data={'val' : v})
             return res.text
-          
-          #return redirect('http://'+node_self.get_leader()+'/kvs/foo', data = req )
             
-        #cat = "Item: " + qitem + " time: " + str(qtime)
-        #return putValue(key_name,v)
-
     if (request.method == 'DELETE'):
         #return "Delete value and key: %s" % key_name
-        return delValue(key_name)
+        if (int(node_self.get_role()) == 1):
+            node_self.addQueue(key_name, "")
+            return delValue(key_name)
+        else:
+            url = 'http://'+node_self.get_leader()+'/kvs/'+key_name
+            res = requests.delete(url)
+            return res.text
     else:
         return "Invalid request."
 # Working
