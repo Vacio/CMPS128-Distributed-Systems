@@ -2,6 +2,7 @@ from flask import Flask, request, make_response, render_template, jsonify, redir
 from linkedList import *
 # from requestQueue import * 
 import requests, sys, os, json, threading, time
+from logging.handlers import RotatingFileHandler
 
 
 app = Flask(__name__)
@@ -99,33 +100,89 @@ def ack():
 
 @app.route("/kvs/<string:key_name>", methods=['GET', 'PUT', 'DELETE'])
 def root(key_name):
-    if (request.method == 'GET'):
-        return getValue(key_name)
 
-    if (request.method == 'PUT'):
-        req = request.form
+    leaderURL = 'http://'+node_self.get_leader()+'/'
+    if (leaderURL == str(request.url_root)):
         v = request.form['val']
-        if (int(node_self.get_role()) == 1):
-            node_self.addQueue(key_name, v)
+        if (request.method == 'PUT'):
+            #if (int(node_self.get_role()) == 1):
+            #   node_self.addQueue('PUT',key_name, v)
+            #   return node_self.printQueue()
+            #else:
             return putValue(key_name,v)
-        else:
-            url = 'http://'+node_self.get_leader()+'/kvs/'+key_name
-            #form = 'stuff:' +str(req)
-            #rest = url +'\n'+form
-            res = requests.put(url,data={'val' : v})
-            return res.text
-            
-    if (request.method == 'DELETE'):
-        #return "Delete value and key: %s" % key_name
-        if (int(node_self.get_role()) == 1):
-            node_self.addQueue(key_name, "")
-            return delValue(key_name)
-        else:
-            url = 'http://'+node_self.get_leader()+'/kvs/'+key_name
-            res = requests.delete(url)
-            return res.text
+        if (request.method == 'DELETE'):
+            #if (int(node_self.get_role()) == 1):
+            #    node_self.addQueue('DELETE',key_name, "")
+            #    return node_self.printQueue()
+            #else:
+            return delValue(key_name) 
     else:
-        return "Invalid request."
+        if (request.method == 'GET'):
+            return getValue(key_name)
+
+        if (request.method == 'PUT'):
+            req = request.form
+            v = request.form['val']
+            if (int(node_self.get_role()) == 1):
+                node_self.addQueue('PUT',key_name, v)
+                return putValue(key_name,v)
+            else:
+                url = 'http://'+node_self.get_leader()+'/kvs/'+key_name
+                #form = 'stuff:' +str(req)
+                #rest = url +'\n'+form
+                res = requests.put(url,data={'val' : v})
+                return res.text
+            
+        if (request.method == 'DELETE'):
+            #return "Delete value and key: %s" % key_name
+            if (int(node_self.get_role()) == 1):
+                node_self.addQueue('DELETE',key_name, "")
+                return delValue(key_name)
+            else:
+                url = 'http://'+node_self.get_leader()+'/kvs/'+key_name
+                res = requests.delete(url)
+                return res.text
+        else:
+            return "Invalid request."
+    
+    
+def leaderDuties():
+    lQueue = node_self.get_queue()
+    # return node_self.subQueue(node_self.get_queue())
+    cat = "LEADER DUTY: "  
+    cat += str(bool(lQueue)) +" "+ node_self.printQueue()
+    if bool(lQueue):
+        task = node_self.subQueue(lQueue)
+        method, keyname, value = task
+        #return "Made to broadcast!"
+        leaderBroadcast(method,keyname,value)
+        return cat + " Good"
+    return cat + " BAAAAAD"
+         
+def leaderBroadcast(method, keyname, value):
+    for mem in members:
+        if mem != name_me:
+            pointer = node_list.search_node(mem)
+            if (pointer.get_status()==1):
+                leaderMessage(method,keyname,value,pointer.get_name())
+              
+                    
+        
+def leaderMessage(method,keyname,value,nodeName):
+    url = 'http://'+nodeName+'/kvs/'+keyname
+    try:
+        if (method=='PUT'):
+            res = requests.put(url, timeout=2, data={'val' : value})
+        else:
+            res = requests.delete(url, timeout=2)
+    except (requests.ConnectionError, requests.HTTPError, requests.Timeout):
+        getPing(nodeName)
+        pointer = node_list.search_node(nodeName)
+        if (pointer.get_status()==1):
+            leaderMessage(method,keyname,value)
+    
+
+
 # Working
 def getValue(key):
     if (key in DT):
@@ -188,7 +245,10 @@ def heartbeat():
             if (name_me!=mem):
                 #threading.Timer(5.0, getPing, (mem,)).run()
                 getPing(mem)
-        sys.stdout.flush()        
+        sys.stdout.flush()   
+        if(int(node_self.get_role()) == 1):
+            print leaderDuties()
+
         time.sleep(6.0)
 
 if __name__ == '__main__':

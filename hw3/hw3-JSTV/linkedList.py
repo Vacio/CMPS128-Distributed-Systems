@@ -19,7 +19,7 @@ class Node(object):
         self.Status=Status
         self.Role = Role
         self.Leader=Leader #set leader variable to port
-        self.Queue= Queue
+        self.Queue=Queue
         self.nextNode=nextNode
         self.LeaderElection=LeaderElection
     
@@ -62,10 +62,26 @@ class Node(object):
     def set_queue(self, queue):
         self.Queue = queue
 
-    def addQueue(self, key, value):
+    def addQueue(self,method, key, value):
         tick = time.time()
-        self.Queue[key] = [(tick, value)]
-        return self.Queue[key]
+        self.Queue[tick] = (method, key, value)
+        return self.Queue[tick]
+        
+    def printQueue(self):
+        cat ="FUCKING HERE Queue: "
+        for keys,values in self.Queue.items():
+            cat += str(keys)
+            cat +=" !!!!! "
+            method,key,value = values
+            cat += method+" " + key + " " +value+"\n"
+        #for i in self.Queue:
+        #    cat += str(i) +" "
+        #    for n in self.Queue[i]:
+        #        cat += str(n)+":"+ self.Queue[i][n]
+        return cat
+    
+    def subQueue(self, queue):
+       return queue.pop(min(queue.keys(),key=int))
         
     def get_queue(self):
         return self.Queue
