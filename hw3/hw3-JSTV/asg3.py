@@ -131,11 +131,12 @@ def root(key_name):
             if (request.method == 'PUT'):
                 url = 'http://'+node_self.get_leader()+'/kvs/'+key_name
                 res = requests.put(url,data={'val' : v})
-                return 'Sent PUT Request to Leader'
+                return res.text
+
             if (request.method == 'DELETE'):
                 url = 'http://'+node_self.get_leader()+'/kvs/'+key_name
                 res = requests.delete(url)
-                return 'Sent DEL Request to Leader'
+                return res.text
             else:
                 return 'Not Leader, Invalid Request'
     else:
