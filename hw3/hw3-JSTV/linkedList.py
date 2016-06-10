@@ -68,7 +68,7 @@ class Node(object):
         return self.Queue[tick]
         
     def printQueue(self):
-        cat ="FUCKING HERE Queue: "
+        cat =str(self.get_name())+" Queue: "
         for keys,values in self.Queue.items():
             cat += str(keys)
             cat +=" !!!!! "

@@ -23,8 +23,8 @@ startElection=False
 ##TESTING##
 #print ("Node Name: "+ node_self.get_name()+ " status: " + str(node_self.get_status()) + " role: " + str(node_self.get_role()) + " port: " + node_self.get_port()+ " IP: " + node_self.get_IP())
 #print(node_list.print_node())
-'''node_list.update_node('10.0.0.21:12346',1, 0, None,None)
-print(node_list.print_node())'''
+# node_list.update_node('10.0.0.21:12346',1, 0, None,None)
+# print(node_list.print_node())'''
 # def pingNode(destName, node_self):
 #     r = requests.get('http://'+destName+'/ack')
 #     return r.text
@@ -100,49 +100,45 @@ def ack():
 
 @app.route("/kvs/<string:key_name>", methods=['GET', 'PUT', 'DELETE'])
 def root(key_name):
-
-    leaderURL = 'http://'+node_self.get_leader()+'/'
-    if (leaderURL == str(request.url_root)):
+    # All Should do
+    if (request.method == 'GET'):
+        return getValue(key_name)
+    # If i am a Leader
+    if (node_self.get_role()==1):
         v = request.form['val']
         if (request.method == 'PUT'):
-            #if (int(node_self.get_role()) == 1):
-            #   node_self.addQueue('PUT',key_name, v)
-            #   return node_self.printQueue()
-            #else:
-            return putValue(key_name,v)
-        if (request.method == 'DELETE'):
-            #if (int(node_self.get_role()) == 1):
-            #    node_self.addQueue('DELETE',key_name, "")
-            #    return node_self.printQueue()
-            #else:
-            return delValue(key_name) 
-    else:
-        if (request.method == 'GET'):
-            return getValue(key_name)
+            node_self.addQueue('PUT',key_name,v)
+            return putValue(key_name, v)
 
-        if (request.method == 'PUT'):
-            req = request.form
-            v = request.form['val']
-            if (int(node_self.get_role()) == 1):
-                node_self.addQueue('PUT',key_name, v)
-                return putValue(key_name,v)
-            else:
-                url = 'http://'+node_self.get_leader()+'/kvs/'+key_name
-                #form = 'stuff:' +str(req)
-                #rest = url +'\n'+form
-                res = requests.put(url,data={'val' : v})
-                return res.text
-            
         if (request.method == 'DELETE'):
-            #return "Delete value and key: %s" % key_name
-            if (int(node_self.get_role()) == 1):
-                node_self.addQueue('DELETE',key_name, "")
+            node_self.addQueue('DELETE',key_name,"")
+            return delValue(key_name)
+
+        else:
+            return "Leader, Invalid Request"
+    # If I am a Backup
+    if (node_self.get_role()==0):
+        # if Request was from Leader, Do the command
+        if (request.remote_addr == (node_self.get_leader())[:-6]):
+            v = request.form['val']
+            if (request.method == 'PUT'):
+                return putValue(key_name,v)
+            if (request.method == 'DELETE'):
                 return delValue(key_name)
-            else:
+        # if Request was NOT from a leader, send the request to my leader     
+        else:
+            v = request.form['val']
+            if (request.method == 'PUT'):
+                url = 'http://'+node_self.get_leader()+'/kvs/'+key_name
+                res = requests.put(url,data={'val' : v})
+                return 'Sent PUT Request to Leader'
+            if (request.method == 'DELETE'):
                 url = 'http://'+node_self.get_leader()+'/kvs/'+key_name
                 res = requests.delete(url)
-                return res.text
-        else:
+                return 'Sent DEL Request to Leader'
+            else:
+                return 'Not Leader, Invalid Request'
+    else:
             return "Invalid request."
     
     
