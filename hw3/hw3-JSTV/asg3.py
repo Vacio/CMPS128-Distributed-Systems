@@ -79,11 +79,11 @@ def pingNode(destName):
           #      startElection = False
             checkLeader(pLeader)
             pingStatus = node_list.update_node(pName,pStatus, pRole, pLeader,pQueue, pLE)
-            if pingStatus == -1:
-                cat += destName +"ERROR\n"
-                return cat
-            cat = destName + " Success\n"
-            return cat
+            #if pingStatus == -1:
+                #cat += destName +"ERROR\n"
+                #return cat
+            #cat = destName + " Success\n"
+            #return cat
     except(requests.ConnectionError, requests.HTTPError, requests.Timeout):    
         #set the node status to dead if response not given
         n = node_list.search_node(destName)
@@ -95,8 +95,8 @@ def pingNode(destName):
             node_self.set_LE(True)
             #n.set_LE(True)
             leaderElection()
-        cat = destName +" Dead \n"
-        return cat
+        #cat = destName +" Dead \n"
+        #return cat
 
 # Recieves node and Prints the node object.
 @app.route('/ack', methods=['GET'])
@@ -154,13 +154,14 @@ def root(key_name):
 def leaderDuties():
     lQueue = node_self.get_queue()
     # return node_self.subQueue(node_self.get_queue())
-    cat = "LEADER DUTY: "  
-    cat += str(bool(lQueue)) +" "+ node_self.printQueue()
+    #cat = "LEADER DUTY: "  
+    #cat += str(bool(lQueue)) +" "+ node_self.printQueue()
     if bool(lQueue):
         task = node_self.subQueue(lQueue)
         method, keyname, value = task
-        return leaderBroadcast(method,keyname,value)
-    return cat + "Empty Queue"
+        #return leaderBroadcast(method,keyname,value)
+        leaderBroadcast(method,keyname,value)
+    #return cat + "Empty Queue"
          
 def leaderBroadcast(method, keyname, value):
     cat = "BroadCast Message: "
@@ -168,8 +169,9 @@ def leaderBroadcast(method, keyname, value):
         if mem != name_me:
             pointer = node_list.search_node(mem)
             if (pointer.get_status()==1):
-                cat += leaderMessage(method,keyname,value,pointer.get_name()) + ";"
-    return cat
+                #cat += leaderMessage(method,keyname,value,pointer.get_name()) + ";"
+                leaderMessage(method,keyname,value,pointer.get_name()) + ";"
+    #return cat
               
                     
         
@@ -224,10 +226,11 @@ def delValue(key):
 def getPing(mem):
     # 'http://10.0.0.21:12346/kvs/foo'
     # r = requests.get('http://'+members[1]+'/kvs/foo', timeout = 3)
-    cat = ""
-    cat += str(pingNode(mem))
+    #cat = ""
+    #cat += str(pingNode(mem))
+    pingNode(mem)
     # cat += node_list.print_node()
-    print cat
+    #print cat
     
 def leaderElection():
     newLeader=0
@@ -254,7 +257,8 @@ def heartbeat():
                 getPing(mem)
         sys.stdout.flush()   
         if(int(node_self.get_role()) == 1):
-            print leaderDuties()
+            #print leaderDuties()
+            leaderDuties()
 
         time.sleep(0.25)
 
