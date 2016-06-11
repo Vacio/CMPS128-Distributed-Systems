@@ -69,6 +69,12 @@ def pingNode(destName):
             pPort = ping['port']
             pQueue = ping['queue']
             pLE = ping['LE']
+            if(node_self.get_leader() == node_self.get_name()):
+                if(pRole == 1):
+                    if(node_self.get_port() > pPort):
+                        node_self.mergeQueue(pQueue)
+            if(node_self.get_leader() == pName):
+                node_self.set_queue(pQueue)
           #  if pLE == False:
           #      startElection = False
             checkLeader(pLeader)

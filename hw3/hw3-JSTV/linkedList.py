@@ -82,6 +82,12 @@ class Node(object):
     
     def subQueue(self, queue):
        return queue.pop(min(queue.keys(),key=int))
+       
+    def mergeQueue(self, queue):
+        for ticks in queue:
+            if(self.Queue[tick] !=  queue[tick]):
+                method,key,value=queue.items()
+                self.addQueue(method,key,value)
         
     def get_queue(self):
         return self.Queue
